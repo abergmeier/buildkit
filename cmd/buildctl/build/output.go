@@ -42,7 +42,7 @@ func parseOutputCSV(s string) (client.ExportEntry, error) {
 	if v, ok := ex.Attrs["output"]; ok {
 		return ex, errors.Errorf("output=%s not supported for --output, you meant dest=%s?", v, v)
 	}
-	ex.Output, ex.OutputDir, err = resolveExporterDest(ex.Type, ex.Attrs["dest"])
+	ex.Output, ex.OutputDir, err = ResolveExporterDest(ex.Type, ex.Attrs["dest"])
 	if err != nil {
 		return ex, errors.Wrap(err, "invalid output option: output")
 	}
@@ -77,7 +77,7 @@ func ParseLegacyExporter(legacyExporter string, legacyExporterOpts []string) ([]
 	if v, ok := ex.Attrs["dest"]; ok {
 		return nil, errors.Errorf("dest=%s not supported for --exporter-opt, you meant output=%s?", v, v)
 	}
-	ex.Output, ex.OutputDir, err = resolveExporterDest(ex.Type, ex.Attrs["output"])
+	ex.Output, ex.OutputDir, err = ResolveExporterDest(ex.Type, ex.Attrs["output"])
 	if err != nil {
 		return nil, errors.Wrap(err, "invalid exporter option: output")
 	}
@@ -87,8 +87,8 @@ func ParseLegacyExporter(legacyExporter string, legacyExporterOpts []string) ([]
 	return []client.ExportEntry{ex}, nil
 }
 
-// resolveExporterDest returns at most either one of io.WriteCloser (single file) or a string (directory path).
-func resolveExporterDest(exporter, dest string) (func(map[string]string) (io.WriteCloser, error), string, error) {
+// ResolveExporterDest returns at most either one of io.WriteCloser (single file) or a string (directory path).
+func ResolveExporterDest(exporter, dest string) (func(map[string]string) (io.WriteCloser, error), string, error) {
 	wrapWriter := func(wc io.WriteCloser) func(map[string]string) (io.WriteCloser, error) {
 		return func(m map[string]string) (io.WriteCloser, error) {
 			return wc, nil
